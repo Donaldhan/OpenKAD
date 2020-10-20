@@ -13,6 +13,9 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ *
+ */
 public class KeybasedRoutingTest {
 
 	@Test
@@ -293,7 +296,10 @@ public class KeybasedRoutingTest {
 			return x.a == a && x.b == b && x.c.equals(c);
 		}
 	}
-	
+
+	/**
+	 * @throws Throwable
+	 */
 	@Test(timeout=5000)
 	public void the2NodesShouldAbleToSendArbitrarySerializableMessages() throws Throwable {
 		int basePort = 10400;
@@ -340,8 +346,11 @@ public class KeybasedRoutingTest {
 				isDone.wait();
 		}
 	}
-	
-	
+
+
+	/**
+	 * @throws Throwable
+	 */
 	@Test(timeout=5000)
 	public void the2NodesShouldAbleToSendArbitrarySerializableRequests() throws Throwable {
 		int basePort = 10500;
@@ -378,7 +387,10 @@ public class KeybasedRoutingTest {
 		Serializable res = kbrs.get(0).sendRequest(findNode.get(0), "tag", x).get();
 		Assert.assertEquals(new X(3, 4, "edf"), res);
 	}
-	
+
+	/**
+	 * @throws Throwable
+	 */
 	@Test(timeout=30000)
 	public void the16NodesShouldAbleToSendMessages() throws Throwable {
 		int basePort = 10600;
@@ -424,8 +436,11 @@ public class KeybasedRoutingTest {
 				isDone.wait();
 		}
 	}
-	
-	
+
+
+	/**
+	 * @throws Throwable
+	 */
 	@Test(timeout=5000)
 	public void the2NodesShouldAbleToSendRequest() throws Throwable {
 		int basePort = 10700;

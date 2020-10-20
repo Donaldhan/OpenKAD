@@ -19,6 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.mockito.Mockito.*;
 
+/**
+ *
+ */
 public class MessageDispatcherTest {
 
 	private BlockingQueue<MessageDispatcher<?>> mockedOutstandingRequests;
@@ -30,7 +33,10 @@ public class MessageDispatcherTest {
 	private KadRequest mockedRequest;
 	private long timeout;
 	private MessageDispatcher<Object> dispatcher;
-	
+
+	/**
+	 *
+	 */
 	@Before
 	public void setup() {
 		mockedOutstandingRequests = spy(new ArrayBlockingQueue<MessageDispatcher<?>>(10));
@@ -50,7 +56,10 @@ public class MessageDispatcherTest {
 				timeout,
 				mockedKadServer);
 	}
-	
+
+	/**
+	 * @throws Exception
+	 */
 	@Test
 	public void itShouldInsertItselfToOutstandingRequestsWhenSent() throws Exception {
 		
@@ -61,7 +70,10 @@ public class MessageDispatcherTest {
 		verify(mockedOutstandingRequests).put(dispatcher);
 		verify(mockedKadServer, times(1)).send(mockedNode, mockedRequest);
 	}
-	
+
+	/**
+	 * @throws Exception
+	 */
 	@Test
 	public void itShouldRemoveItselfFromOutstandingRequestsAndExpectersWhenDone() throws Exception {
 		dispatcher
@@ -75,7 +87,10 @@ public class MessageDispatcherTest {
 		verify(mockedOutstandingRequests).remove(dispatcher);
 		verify(mockedExpecters).remove(dispatcher);
 	}
-	
+
+	/**
+	 * @throws Exception
+	 */
 	@Test
 	public void itShouldNotRemoveItselfFromExpectersWhenNonConsumableAndRegistered() throws Exception {
 		dispatcher
@@ -90,7 +105,10 @@ public class MessageDispatcherTest {
 		verify(mockedExpecters, never()).remove(dispatcher);
 		verify(mockedNonConsumableExpecters, never()).remove(dispatcher);
 	}
-	
+
+	/**
+	 * @throws Exception
+	 */
 	@Test
 	public void itShouldRemoveIteselfFromExpectersWhenConsumableAndRegistered() throws Exception {
 		dispatcher
@@ -104,7 +122,10 @@ public class MessageDispatcherTest {
 		verify(mockedOutstandingRequests, never()).put(dispatcher);
 		verify(mockedExpecters, times(1)).remove(dispatcher);
 	}
-	
+
+	/**
+	 * @throws Exception
+	 */
 	@Test
 	public void itShouldInvokeCallbackAfterHandle() throws Exception {
 		final KadMessage mockedMsg = mock(KadMessage.class);
@@ -157,7 +178,10 @@ public class MessageDispatcherTest {
 		
 		Assert.assertTrue(hasVisited.get());
 	}
-	
+
+	/**
+	 * @throws Throwable
+	 */
 	@Test
 	public void itShouldWaitUntilHandleWasInvokedWhenSendAndWait() throws Throwable {
 		
@@ -181,7 +205,10 @@ public class MessageDispatcherTest {
 		
 		Assert.assertTrue(recvedMessage == mockedMsg);
 	}
-	
+
+	/**
+	 * @throws Throwable
+	 */
 	@Test(expected=ExecutionException.class)
 	public void itShouldTimedoutWhenSendAndWait() throws Throwable {
 		
@@ -190,6 +217,10 @@ public class MessageDispatcherTest {
 			.futureSend(mockedNode, mockedRequest).get();
 		
 	}
+
+	/**
+	 * @throws Throwable
+	 */
 	@Test
 	public void itShouldWaitUntilMessageIsRecvedWhenExpecting() throws Throwable {
 		Future<KadMessage> f = dispatcher
@@ -200,7 +231,10 @@ public class MessageDispatcherTest {
 		
 		Assert.assertEquals(mockedRequest, f.get());
 	}
-	
+
+	/**
+	 * @throws Throwable
+	 */
 	@Test(expected=ExecutionException.class)
 	public void itShouldTimedoutWhenExpectingAndWaiting() throws Throwable {
 		Future<KadMessage> f = dispatcher
