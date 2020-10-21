@@ -11,7 +11,7 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/boot-statistics.log</file>
+        <file>logs/Kademlia.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>logs/Kademlia.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxHistory>10</maxHistory>
@@ -24,8 +24,9 @@
     </appender>
 
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
         <if condition='property("spring.profiles.active").contains("prod")'>
             <then>
                 <!-- empty -->

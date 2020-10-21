@@ -45,7 +45,7 @@ public interface KeybasedRouting {
 	 * After we have a singleton network we can expand it using join.
 	 * Note that joining another singleton network will merge the 2 singleton
 	 * into one new network with 2 nodes in it.
-	 * 
+	 * 将两个单例网络合并为一个单例网络
 	 * URI format must be: openkad.udp://[ip of known node]:[port of that node]/
 	 * 
 	 * @param bootstraps all the known nodes in the other network

@@ -9,6 +9,9 @@ import il.technion.ewolf.kbr.openkad.msg.KadMessage;
  */
 public class TypeMessageFilter implements MessageFilter {
 
+	/**
+	 *
+	 */
 	private final Class<? extends KadMessage> clazz;
 	
 	public TypeMessageFilter(Class<? extends KadMessage> clazz) {

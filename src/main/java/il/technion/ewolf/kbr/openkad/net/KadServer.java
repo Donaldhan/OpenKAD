@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Low level communication handler. This class does all the serialze/de-serialze
@@ -34,6 +35,7 @@ import com.google.inject.name.Named;
  * @author eyal.kibbar@gmail.com
  * 
  */
+@Slf4j
 public class KadServer implements Communicator {
 
 	// dependencies
@@ -126,14 +128,18 @@ public class KadServer implements Communicator {
 
 			pkt.setSocketAddress(to.getSocketAddress(this.kadScheme));
 			this.sockProvider.get().send(pkt);
+			log.info("KadServer send to node:{}, msg:{}",to, msg);
 
-		} finally {
+		} catch (Exception e){
+           log.error("KadServer send error",e);
+		}finally {
 			try {
 
 				bout.close();
 				bout = null;
 
 			} catch (final Exception e) {
+				log.error("KadServer bout  close error",e);
 			}
 		}
 	}
@@ -157,6 +163,9 @@ public class KadServer implements Communicator {
 		return $;
 	}
 
+	/**
+	 * @param pkt
+	 */
 	private void handleIncomingPacket(final DatagramPacket pkt) {
 		this.nrIncomingMessages.incrementAndGet();
 		this.nrBytesRecved.addAndGet(pkt.getLength());

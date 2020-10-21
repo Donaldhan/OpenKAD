@@ -57,6 +57,9 @@ public class KadNet implements KeybasedRouting {
 	private final Provider<ForwardHandler> forwardHandlerProvider;
 	
 	private final Node localNode;
+	/**
+	 *
+	 */
 	private final Communicator kadServer;
 	private final NodeStorage nodeStorage;
 	private final KeyFactory keyFactory;

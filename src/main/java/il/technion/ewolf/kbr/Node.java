@@ -1,5 +1,7 @@
 package il.technion.ewolf.kbr;
 
+import lombok.ToString;
+
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -20,12 +22,19 @@ import java.util.Map;
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public class Node implements Serializable,Comparable<Node> {
 
 	private static final long serialVersionUID = 2520444508318328765L;
 	
 	private final Key key;
+	/**
+	 *
+	 */
 	private InetAddress addr = null;
+	/**
+	 *
+	 */
 	private Map<String, Integer> portFromScheme = new HashMap<String, Integer>();
 	
 	// dummy node
@@ -55,7 +64,7 @@ public class Node implements Serializable,Comparable<Node> {
 	/**
 	 * The endpoints map is a map containing all the nodes available protocols as keys
 	 * and the protocol's port as values
-	 *  
+	 *  schema、port关系
 	 * @return node's protocols
 	 */
 	public Map<String, Integer> getAllEndpoints() {
@@ -135,10 +144,11 @@ public class Node implements Serializable,Comparable<Node> {
 		return portFromScheme.get(scheme);
 	}
 	
-	@Override
+/*	 @ToString
+@Override
 	public String toString() {
 		return getKey().toString();
-	}
+	}*/
 
 	@Override
 	public int hashCode() {

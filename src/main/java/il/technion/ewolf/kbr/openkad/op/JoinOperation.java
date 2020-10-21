@@ -24,12 +24,14 @@ import java.util.concurrent.CountDownLatch;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Join operation as defined in the kademlia algorithm
  * @author eyal.kibbar@gmail.com
  *
  */
+@Slf4j
 public class JoinOperation  {
 
 	//dependencies
@@ -41,7 +43,9 @@ public class JoinOperation  {
 	private final KBuckets kBuckets;
 	private final Node localNode;
 	private final Provider<KadNode> kadNodeProvider;
-	// state
+	/**
+	 * state
+	 */
 	private Collection<Node> bootstrap = new HashSet<Node>();
 	
 	@Inject
@@ -94,6 +98,7 @@ public class JoinOperation  {
 	public void doJoin() {
 
 		final CountDownLatch latch = new CountDownLatch(bootstrap.size());
+		log.debug("bootstrap size:{}",bootstrap.size());
 		CompletionHandler<KadMessage, Void> callback = new CompletionHandler<KadMessage, Void>() {
 
 			@Override
@@ -102,6 +107,7 @@ public class JoinOperation  {
 					kBuckets.insert(kadNodeProvider.get()
 						.setNode(msg.getSrc())
 						.setNodeWasContacted());
+					log.debug("localNode kBuckets insert msg：{}",msg);
 				} finally {
 					latch.countDown();
 				}
@@ -109,6 +115,7 @@ public class JoinOperation  {
 
 			@Override
 			public void failed(Throwable exc, Void nothing) {
+				log.error("CompletionHandler KadMessage callback error",exc);
 				latch.countDown();
 			}
 		};
@@ -121,6 +128,7 @@ public class JoinOperation  {
 				.setConsumable(true)
 				.setCallback(null, callback)
 				.send(n, pingRequest);
+			log.debug("localNode:{} send pingRequest :{}",localNode, pingRequest);
 		}
 		
 		// waiting for responses

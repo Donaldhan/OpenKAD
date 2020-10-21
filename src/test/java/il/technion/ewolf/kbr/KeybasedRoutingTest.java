@@ -18,6 +18,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class KeybasedRoutingTest {
 
+	/**
+	 * 验证两个节点可以发现彼此
+	 * @throws Throwable
+	 */
 	@Test
 	public void the2NodesShouldFindEachOther() throws Throwable {
 		int basePort = 10000;
@@ -27,6 +31,7 @@ public class KeybasedRoutingTest {
 					.setProperty("openkad.keyfactory.keysize", "1")
 					.setProperty("openkad.bucket.kbuckets.maxsize", "3")
 					.setProperty("openkad.seed", ""+(i+basePort))
+					.setProperty("openkad.net.udp.host", "127.0.0.1")
 					.setProperty("openkad.net.udp.port", ""+(i+basePort)));
 			
 			
@@ -62,8 +67,12 @@ public class KeybasedRoutingTest {
 		System.out.println(findNode);
 		
 	}
-	
-	
+
+
+	/**
+	 * 验证16个节点可以发现彼此
+	 * @throws Throwable
+	 */
 	@Test
 	public void the16NodesShouldFindEachOther() throws Throwable {
 		int basePort = 10100;
@@ -156,7 +165,11 @@ public class KeybasedRoutingTest {
 		}
 	}
 	*/
-	
+
+	/**
+	 * 验证64个节点可以发现彼此
+	 * @throws Throwable
+	 */
 	@Test
 	public void the64NodesShouldFindEachOther() throws Throwable {
 		int basePort = 10200;
@@ -361,6 +374,7 @@ public class KeybasedRoutingTest {
 					.setProperty("openkad.bucket.kbuckets.maxsize", "1")
 					.setProperty("openkad.seed", ""+(i+basePort))
 					.setProperty("openkad.net.udp.port", ""+(i+basePort)));
+
 			KeybasedRouting kbr = injector.getInstance(KeybasedRouting.class);
 			kbr.create();
 			kbrs.add(kbr);

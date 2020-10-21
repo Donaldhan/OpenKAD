@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Handle all the messages different states.
@@ -33,11 +34,18 @@ import com.google.inject.name.Named;
  *
  * @param <A>
  */
+@Slf4j
 public class MessageDispatcher<A> {
 
 	// state
 	private A attachment;
+	/**
+	 * 消息分发回调
+	 */
 	private CompletionHandler<KadMessage, A> callback;
+	/**
+	 *
+	 */
 	private boolean isConsumbale = true;
 	private long timeout;
 	private final Set<MessageFilter> filters = new HashSet<MessageFilter>();
@@ -47,8 +55,14 @@ public class MessageDispatcher<A> {
 	private final BlockingQueue<MessageDispatcher<?>> outstandingRequests;
 	private final Set<MessageDispatcher<?>> expecters; // must be sync'ed set
 	private final Set<MessageDispatcher<?>> nonConsumableexpecters; // must be sync'ed set
-	
+
+	/**
+	 *
+	 */
 	private final Timer timer;
+	/**
+	 *
+	 */
 	private final Communicator communicator;
 
 	
@@ -83,7 +97,11 @@ public class MessageDispatcher<A> {
 		else 
 			nonConsumableexpecters.remove(this);
 	}
-	
+
+	/**
+	 * 取消操作
+	 * @param exc
+	 */
 	public void cancel(Throwable exc) {
 		if (!isDone.compareAndSet(false, true))
 			return;
@@ -106,7 +124,11 @@ public class MessageDispatcher<A> {
 		}
 		return true;
 	}
-	
+
+	/**
+	 * 处理消息
+	 * @param msg
+	 */
 	void handle(KadMessage msg) {
 		assert (shouldHandleMessage(msg));
 		
@@ -122,7 +144,8 @@ public class MessageDispatcher<A> {
 			if (!isDone.compareAndSet(false, true))
 				return;
 		}
-		
+		log.debug("handle KadMessage:{}",msg);
+		//通知回调
 		if (callback != null)
 			callback.completed(msg, attachment);
 	}
@@ -171,7 +194,10 @@ public class MessageDispatcher<A> {
 		
 		return f;
 	}
-	
+
+	/**
+	 *
+	 */
 	private void setupTimeout() {
 		if (!isConsumbale)
 			return;
@@ -180,12 +206,19 @@ public class MessageDispatcher<A> {
 			
 			@Override
 			public void run() {
+				log.info("MessageDispatcher timeout...");
 				MessageDispatcher.this.cancel(new TimeoutException());
 			}
 		};
+		//debug 暂时关闭
 		timer.schedule(timeoutTimerTask, timeout);
 	}
-	
+
+	/**
+	 * @param to
+	 * @param req
+	 * @return
+	 */
 	public boolean trySend(Node to, KadRequest req) {
 		setConsumable(true);
 		try {
@@ -217,7 +250,8 @@ public class MessageDispatcher<A> {
 			outstandingRequests.put(this);
 			expect();
 			communicator.send(to, req);
-			
+			log.debug("communicator send to Node:{},req:{}",to,req);
+
 			setupTimeout();
 			
 		} catch (Exception e) {

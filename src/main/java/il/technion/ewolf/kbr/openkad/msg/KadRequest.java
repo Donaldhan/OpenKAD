@@ -4,6 +4,7 @@ import il.technion.ewolf.kbr.Node;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.ToString;
 
 /**
  * Base class for all requests.
@@ -15,6 +16,7 @@ import com.google.inject.name.Named;
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public abstract class KadRequest extends KadMessage {
 
 	private static final long serialVersionUID = 7014729033211615669L;
@@ -25,6 +27,10 @@ public abstract class KadRequest extends KadMessage {
 		super(id, src);
 	}
 
+	/**
+	 * @param localNode
+	 * @return
+	 */
 	public abstract KadResponse generateResponse(Node localNode);
 	
 }

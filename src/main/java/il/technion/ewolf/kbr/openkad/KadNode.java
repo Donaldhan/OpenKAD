@@ -70,6 +70,7 @@ public class KadNode {
 	/**
 	 * When a message from the wrapped node is received, use this method to
 	 * record the time
+	 * 记录节点接收消息的时间
 	 * @return this for fluent interface
 	 */
 	public KadNode setNodeWasContacted() {

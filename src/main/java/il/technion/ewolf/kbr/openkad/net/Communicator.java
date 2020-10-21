@@ -8,8 +8,21 @@ import java.io.IOException;
 
 public interface Communicator extends Runnable {
 
+	/**
+	 *
+	 */
 	public void bind();
+
+	/**
+	 * @param to
+	 * @param msg
+	 * @throws IOException
+	 */
 	public void send(Node to, KadMessage msg) throws IOException;
+
+	/**
+	 * @param serverThread
+	 */
 	public void shutdown(Thread serverThread);
 	
 }

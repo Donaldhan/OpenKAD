@@ -34,11 +34,7 @@ import il.technion.ewolf.kbr.openkad.op.KadLocalCacheFindValueOperation;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,6 +61,12 @@ import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ *
+ */
+@Slf4j
 public class KadNetModule extends AbstractModule {
 
 	private final Properties properties;
@@ -104,7 +106,7 @@ public class KadNetModule extends AbstractModule {
 		defaultProps.setProperty("openkad.bucket.valid_timespan", TimeUnit.HOURS.toMillis(24) + "");
 		// network timeouts and concurrency level
 		defaultProps.setProperty("openkad.net.concurrency", "3");
-		defaultProps.setProperty("openkad.net.timeout", TimeUnit.SECONDS.toMillis(3) + "");
+		defaultProps.setProperty("openkad.net.timeout", TimeUnit.SECONDS.toMillis(6) + "");
 		defaultProps.setProperty("openkad.net.forwarded.timeout", TimeUnit.SECONDS.toMillis(30) + "");
 
 		defaultProps.setProperty("openkad.color.candidates", "1");
@@ -258,8 +260,9 @@ public class KadNetModule extends AbstractModule {
 	@Singleton
 	DatagramSocket provideKadDatagramSocket(@Named("openkad.scheme.name") final String kadScheme,
 			@Named("openkad.local.node") final Node localNode) throws SocketException {
-		System.out.println("binding: " + localNode.getPort(kadScheme));
-		return new DatagramSocket(localNode.getPort(kadScheme));
+		log.info("Node:{} ,host:{},port:{}",localNode, localNode.getInetAddress().getHostName(),localNode.getPort(kadScheme));
+		InetSocketAddress inetSocketAddress = new InetSocketAddress(localNode.getInetAddress().getHostName(), localNode.getPort(kadScheme));
+		return new DatagramSocket(inetSocketAddress);
 	}
 
 	@Provides
@@ -269,6 +272,7 @@ public class KadNetModule extends AbstractModule {
 			@Named("openkad.executors.server.max_pending") final int maxPending) {
 		return new ThreadPoolExecutor(1, nrThreads, 5, TimeUnit.MINUTES, new ArrayBlockingQueue<Runnable>(maxPending, true));
 	}
+
 
 	@Provides
 	@Named("openkad.executors.ping")
@@ -324,14 +328,15 @@ public class KadNetModule extends AbstractModule {
 	@Provides
 	@Named("openkad.local.node")
 	@Singleton
-	Node provideLocalNode(@Named("openkad.scheme.name") final String kadScheme, @Named("openkad.net.udp.port") final int udpPort,
+	Node provideLocalNode(@Named("openkad.scheme.name") final String kadScheme, @Named("openkad.net.udp.host") final String udpHost
+			, @Named("openkad.net.udp.port") final int udpPort,
 			@Named("openkad.local.key") final String base64Key, final KeyFactory keyFactory) throws UnknownHostException,
 			IOException {
 
 		final Key key = base64Key.isEmpty() ? keyFactory.generate() : keyFactory.get(base64Key);
 		final Node n = new Node(key);
-
-		n.setInetAddress(InetAddress.getByName("localhost"));
+		InetSocketAddress inetSocketAddress = new InetSocketAddress(udpHost, udpPort);
+		n.setInetAddress(inetSocketAddress.getAddress());
 		n.addEndpoint(kadScheme, udpPort);
 
 		return n;

@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.ToString;
 
 /**
  * Base class for all openkad messages.
@@ -14,6 +15,7 @@ import com.google.inject.name.Named;
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public abstract class KadMessage implements Serializable {
 
 	private static final long serialVersionUID = -6975403100655787398L;
