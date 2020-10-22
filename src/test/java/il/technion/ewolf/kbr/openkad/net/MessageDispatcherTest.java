@@ -151,7 +151,10 @@ public class MessageDispatcherTest {
 		
 		Assert.assertTrue(hasVisited.get());
 	}
-	
+
+	/**
+	 * @throws Exception
+	 */
 	@Test
 	public void itShouldTimedoutAfterSendWithoutHandle() throws Exception {
 		final KadMessage mockedMsg = mock(KadMessage.class);

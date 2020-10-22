@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.Data;
 import lombok.ToString;
 
 /**
@@ -16,6 +17,7 @@ import lombok.ToString;
  *
  */
 @ToString
+@Data
 public abstract class KadMessage implements Serializable {
 
 	private static final long serialVersionUID = -6975403100655787398L;

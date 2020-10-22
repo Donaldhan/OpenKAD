@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.io.Writer;
 import java.lang.reflect.Type;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 
 import com.google.gson.Gson;
@@ -33,6 +34,7 @@ import com.google.inject.Inject;
  * @author eyal.kibbar@gmail.com
  * 
  */
+@Slf4j
 public class JsonZippedKadSerializer extends KadSerializer implements JsonSerializer<Serializable>, JsonDeserializer<Serializable> {
 
 	private final Gson gson;
@@ -59,6 +61,7 @@ public class JsonZippedKadSerializer extends KadSerializer implements JsonSerial
 
 			reader.beginArray();
 			final String clazzName = gson.fromJson(reader, String.class);
+			log.info("JsonZippedKadSerializer read class: {}",clazzName);
 			msg = gson.fromJson(reader, Class.forName(classPackage + clazzName));
 			reader.endArray();
 
@@ -88,7 +91,7 @@ public class JsonZippedKadSerializer extends KadSerializer implements JsonSerial
 			writer.beginArray();
 			final Class<?> clazz = msg.getClass();
 			gson.toJson(clazz.getSimpleName(), String.class, writer);
-			// System.out.println("writing class: "+clazz);
+			log.info("JsonZippedKadSerializer writing class: {}",clazz);
 			gson.toJson(msg, clazz, writer);
 			writer.endArray();
 

@@ -3,12 +3,14 @@ package il.technion.ewolf.kbr.openkad.net.filter;
 import il.technion.ewolf.kbr.openkad.msg.ContentMessage;
 import il.technion.ewolf.kbr.openkad.msg.ContentRequest;
 import il.technion.ewolf.kbr.openkad.msg.KadMessage;
+import lombok.ToString;
 
 /**
  * Reject all message with different tag than the given tag
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public class TagMessageFilter implements MessageFilter {
 
 	private final String tag;

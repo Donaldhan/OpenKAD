@@ -5,6 +5,7 @@ import il.technion.ewolf.kbr.Node;
 import java.util.List;
 
 import com.google.inject.name.Named;
+import lombok.ToString;
 
 /**
  * A findNode response as defined in the kademlia protocol in shades, our response should contain
@@ -13,6 +14,7 @@ import com.google.inject.name.Named;
  * we extend the find node response in order for nodes to be able to indicate if they are interested in the value for their 
  * cache.
  */
+@ToString
 public class ShadesFindNodeResponse extends KadResponse {
 
 	private static final long serialVersionUID = 2103126060969733458L;

@@ -53,8 +53,14 @@ public class MessageDispatcher<A> {
 	private final AtomicBoolean isDone;
 	// dependencies
 	private final BlockingQueue<MessageDispatcher<?>> outstandingRequests;
-	private final Set<MessageDispatcher<?>> expecters; // must be sync'ed set
-	private final Set<MessageDispatcher<?>> nonConsumableexpecters; // must be sync'ed set
+	/**
+	 * must be sync'ed set
+	 */
+	private final Set<MessageDispatcher<?>> expecters;
+	/**
+	 *must be sync'ed set
+	 */
+	private final Set<MessageDispatcher<?>> nonConsumableexpecters;
 
 	/**
 	 *
@@ -83,7 +89,10 @@ public class MessageDispatcher<A> {
 		this.communicator = communicator;
 		this.isDone = new AtomicBoolean(false);
 	}
-	
+
+    /**
+     *
+     */
 	private void expect() {
 		if (isConsumbale)
 			expecters.add(this);
@@ -115,13 +124,21 @@ public class MessageDispatcher<A> {
 		if (callback != null)
 			callback.failed(exc, attachment);
 	}
-	
-	// returns true if should be handled
+
+	/**
+	 * returns true if should be handled
+	 * @param m
+	 * @return
+	 */
 	boolean shouldHandleMessage(KadMessage m) {
 		for (MessageFilter filter : filters) {
-			if (!filter.shouldHandle(m))
+			if (!filter.shouldHandle(m)) {
+				log.debug("MessageDispatcher shouldHandleMessage false filters:{}, msg:{}",filters , m);
 				return false;
+			}
+
 		}
+		log.debug("MessageDispatcher shouldHandleMessage true filters:{}, msg:{}",filters , m);
 		return true;
 	}
 
@@ -132,22 +149,26 @@ public class MessageDispatcher<A> {
 	void handle(KadMessage msg) {
 		assert (shouldHandleMessage(msg));
 		
-		if (isDone.get())
+		if (isDone.get()) {
 			return;
+		}
 		
-		if (timeoutTimerTask != null)
+		if (timeoutTimerTask != null) {
 			timeoutTimerTask.cancel();
+		}
 		
 		outstandingRequests.remove(this);
 		if (isConsumbale) {
 			expecters.remove(this);
-			if (!isDone.compareAndSet(false, true))
+			if (!isDone.compareAndSet(false, true)) {
 				return;
+			}
 		}
 		log.debug("handle KadMessage:{}",msg);
 		//通知回调
-		if (callback != null)
+		if (callback != null) {
 			callback.completed(msg, attachment);
+		}
 	}
 	
 	public MessageDispatcher<A> addFilter(MessageFilter filter) {
@@ -170,8 +191,13 @@ public class MessageDispatcher<A> {
 		isConsumbale = consume;
 		return this;
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public MessageDispatcher<A> register() {
+		//注册消息分发器到KadServer，
+		//通过	@Named("openkad.net.expecters") Set<MessageDispatcher<?>> expecters 共享
 		expecters.add(this);
 		setupTimeout();
 		return this;
@@ -199,8 +225,9 @@ public class MessageDispatcher<A> {
 	 *
 	 */
 	private void setupTimeout() {
-		if (!isConsumbale)
+		if (!isConsumbale) {
 			return;
+		}
 		
 		timeoutTimerTask = new TimerTask() {
 			
@@ -222,9 +249,9 @@ public class MessageDispatcher<A> {
 	public boolean trySend(Node to, KadRequest req) {
 		setConsumable(true);
 		try {
-			if (!outstandingRequests.offer(this))
+			if (!outstandingRequests.offer(this)) {
 				return false;
-			else
+			} else
 			{
 				//outstandingRequests.put(this);
 				expect();
@@ -234,12 +261,17 @@ public class MessageDispatcher<A> {
 			}
 
 		} catch (Exception e) {
+            log.error("log.error trySend to:{}, req:{}",to, req);
 			cancel(e);
 			// if something bad happened - feel free to try again. 
 			return true;
 		}
 	}
-	
+
+    /**
+     * @param to
+     * @param req
+     */
 	public void send(Node to, KadRequest req) {
 		setConsumable(true);
 		try {
@@ -255,6 +287,7 @@ public class MessageDispatcher<A> {
 			setupTimeout();
 			
 		} catch (Exception e) {
+		    log.error("log.error send to:{}, req:{}",to, req);
 			cancel(e);
 		}
 	}

@@ -214,7 +214,6 @@ public class KadNetModule extends AbstractModule {
 		// .to(VisionEagerColorFindValueOperation.class);
 		// .to(KadCacheFindValueOperation.class);
 				.to(EagerColorFindValueOperation.class);
-
 		bind(BootstrapNodesSaver.class).in(Scopes.SINGLETON);
 		bind(KeybasedRouting.class).to(KadNet.class).in(Scopes.SINGLETON);
 
@@ -328,8 +327,9 @@ public class KadNetModule extends AbstractModule {
 	@Provides
 	@Named("openkad.local.node")
 	@Singleton
-	Node provideLocalNode(@Named("openkad.scheme.name") final String kadScheme, @Named("openkad.net.udp.host") final String udpHost
-			, @Named("openkad.net.udp.port") final int udpPort,
+	Node provideLocalNode(@Named("openkad.scheme.name") final String kadScheme,
+						  @Named("openkad.net.udp.host") final String udpHost,
+						  @Named("openkad.net.udp.port") final int udpPort,
 			@Named("openkad.local.key") final String base64Key, final KeyFactory keyFactory) throws UnknownHostException,
 			IOException {
 
@@ -389,6 +389,9 @@ public class KadNetModule extends AbstractModule {
 		return $;
 	}
 
+	/**
+	 *
+	 */
 	private void bindTestingParams() {
 
 		// number of incoming messages

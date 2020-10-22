@@ -9,6 +9,9 @@ package il.technion.ewolf.kbr.openkad.handlers;
  *
  */
 public abstract interface FindNodeHandler {
+	/**
+	 *
+	 */
 	public void register();
 
 

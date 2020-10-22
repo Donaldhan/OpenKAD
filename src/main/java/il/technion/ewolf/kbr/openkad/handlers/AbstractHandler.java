@@ -30,10 +30,11 @@ public abstract class AbstractHandler implements CompletionHandler<KadMessage, V
 	
 	/**
 	 * Register this handler for start receiving messages
+	 * 注册handler
 	 */
 	public void register() {
 		MessageDispatcher<Void> dispatcher = msgDispatcherProvider.get();
-		
+		//添加过滤器
 		for (MessageFilter filter : getFilters()) {
 			dispatcher.addFilter(filter);
 		}

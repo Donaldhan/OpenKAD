@@ -6,12 +6,14 @@ import il.technion.ewolf.kbr.Node;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.ToString;
 
 /**
  * A message containing arbitrary data to be used by the KeybasedRouting.sendRequest methods
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public class ContentRequest extends KadRequest {
 
 	private static final long serialVersionUID = 918433377540165654L;

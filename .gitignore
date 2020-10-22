@@ -8,6 +8,7 @@
 *.iml
 *.iws
 *.ipr
+logs/
 
 # Mac
 .DS_Store

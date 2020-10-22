@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.ToString;
 
 /**
  * A forward message as defined in the colors protocol
@@ -13,6 +14,7 @@ import com.google.inject.name.Named;
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public class ForwardMessage extends KadMessage {
 
 	private static final long serialVersionUID = 101861722605010003L;

@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.ToString;
 
 /**
  * A forward request as defined in the colors protocol TODO: add a link to the
@@ -15,6 +16,7 @@ import com.google.inject.name.Named;
  * @author eyal.kibbar@gmail.com
  * 
  */
+@ToString
 public class ForwardRequest extends KadRequest {
 
 	private static final long serialVersionUID = -1087198782219829035L;

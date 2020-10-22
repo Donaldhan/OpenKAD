@@ -92,6 +92,7 @@ public class KadBuckets implements NodeStorage,KBuckets {
 	 * accordingly.
 	 * Invoke this method after creating the entire system
 	 */
+	@Override
 	public synchronized void registerIncomingMessageHandler() {
 		msgDispatcherProvider.get()
 			.setConsumable(false)

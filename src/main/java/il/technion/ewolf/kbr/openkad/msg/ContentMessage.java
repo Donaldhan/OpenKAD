@@ -6,12 +6,14 @@ import java.io.Serializable;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.ToString;
 
 /**
  * A message containing arbitrary data to be used by the KeybasedRouting.sendMessage method
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public class ContentMessage extends KadMessage {
 
 	private static final long serialVersionUID = -57547778613163861L;

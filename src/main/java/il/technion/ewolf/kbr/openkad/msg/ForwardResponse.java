@@ -1,6 +1,7 @@
 package il.technion.ewolf.kbr.openkad.msg;
 
 import il.technion.ewolf.kbr.Node;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public class ForwardResponse extends KadResponse {
 
 	private static final long serialVersionUID = 6325079396969335098L;

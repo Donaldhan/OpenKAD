@@ -128,6 +128,7 @@ public class KadNet implements KeybasedRouting {
 	@Override
 	public void create() throws IOException {
 		// bind communicator and register all handlers
+		//绑定端口，并注册所有处理器
 		kadServer.bind();
 		pingHandler.get().register();
 		findNodeHandlerProvider.get().register();
@@ -160,8 +161,9 @@ public class KadNet implements KeybasedRouting {
 		
 		List<Node> $ = new ArrayList<Node>(result);
 		
-		if ($.size() > bucketSize)
+		if ($.size() > bucketSize) {
 			$.subList(bucketSize, $.size()).clear();
+		}
 		
 		//System.out.println(op.getNrQueried());
 		
@@ -191,8 +193,9 @@ public class KadNet implements KeybasedRouting {
 	@Override
 	public synchronized void register(String tag, MessageHandler handler) {
 		MessageDispatcher<?> dispatcher = dispatcherFromTag.get(tag);
-		if (dispatcher != null)
+		if (dispatcher != null) {
 			dispatcher.cancel(new CancellationException());
+		}
 		
 		dispatcher = msgDispatcherProvider.get()
 			.addFilter(new TagMessageFilter(tag))

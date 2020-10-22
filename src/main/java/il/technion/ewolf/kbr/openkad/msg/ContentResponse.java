@@ -1,6 +1,7 @@
 package il.technion.ewolf.kbr.openkad.msg;
 
 import il.technion.ewolf.kbr.Node;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -9,6 +10,7 @@ import java.io.Serializable;
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public class ContentResponse extends KadResponse {
 
 	private static final long serialVersionUID = -4479208136049358778L;

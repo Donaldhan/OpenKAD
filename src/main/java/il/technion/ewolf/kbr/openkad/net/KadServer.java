@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -39,12 +40,33 @@ import lombok.extern.slf4j.Slf4j;
 public class KadServer implements Communicator {
 
 	// dependencies
+	/**
+	 *
+	 */
 	private final KadSerializer serializer;
+	/**
+	 *
+	 */
 	private final Provider<DatagramSocket> sockProvider;
+	/**
+	 * 接收的数据包
+	 */
 	private final BlockingQueue<DatagramPacket> pkts;
+	/**
+	 *
+	 */
 	private final ExecutorService srvExecutor;
+	/**
+	 * 预期的消息分发器
+	 */
 	private final Set<MessageDispatcher<?>> expecters;
+	/**
+	 *
+	 */
 	private final Set<MessageDispatcher<?>> nonConsumableExpecters;
+	/**
+	 * kad机制
+	 */
 	private final String kadScheme;
 
 	// testing
@@ -54,6 +76,9 @@ public class KadServer implements Communicator {
 	private final AtomicLong nrBytesRecved;
 
 	// state
+	/**
+	 *
+	 */
 	private final AtomicBoolean isActive = new AtomicBoolean(false);
 	// private final BlockingQueue<DatagramPacket> pktsout;
 
@@ -95,6 +120,7 @@ public class KadServer implements Communicator {
 	@Override
 	public void bind() {
 		this.sockProvider.get();
+		isActive.compareAndSet(false, true);
 	}
 
 	/**
@@ -143,19 +169,30 @@ public class KadServer implements Communicator {
 			}
 		}
 	}
+
+	/**
+	 * 抽出可以处理为消息的消息分发器
+	 * @param msg
+	 * @return
+	 */
 	private List<MessageDispatcher<?>> extractShouldHandle(final KadMessage msg) {
 		List<MessageDispatcher<?>> shouldHandle = Collections.emptyList();
 		List<MessageDispatcher<?>> nonConsumableShouldHandle = Collections.emptyList();
 		final List<MessageDispatcher<?>> $ = new ArrayList<MessageDispatcher<?>>();
 		synchronized (this.expecters) {
-			if (!this.expecters.isEmpty())
-				shouldHandle = filter(having(on(MessageDispatcher.class).shouldHandleMessage(msg), is(true)), this.expecters);
+			if (!this.expecters.isEmpty()) {
+				//filter uneffect
+//				shouldHandle = filter(having(on(MessageDispatcher.class).shouldHandleMessage(msg), is(true)), this.expecters);
+				shouldHandle = expecters.stream().filter(e -> e.shouldHandleMessage(msg)).collect(Collectors.toList());
+			}
 		}
 
 		synchronized (this.nonConsumableExpecters) {
-			if (!this.nonConsumableExpecters.isEmpty())
-				nonConsumableShouldHandle = filter(having(on(MessageDispatcher.class).shouldHandleMessage(msg), is(true)),
-						this.nonConsumableExpecters);
+			if (!this.nonConsumableExpecters.isEmpty()) {
+				//filter uneffect
+//				nonConsumableShouldHandle = filter(having(on(MessageDispatcher.class).shouldHandleMessage(msg), is(true)),this.nonConsumableExpecters);
+				nonConsumableShouldHandle = nonConsumableExpecters.stream().filter(e -> e.shouldHandleMessage(msg)).collect(Collectors.toList());
+			}
 		}
 
 		$.addAll(nonConsumableShouldHandle);
@@ -164,6 +201,7 @@ public class KadServer implements Communicator {
 	}
 
 	/**
+	 * 处理UDP数据包
 	 * @param pkt
 	 */
 	private void handleIncomingPacket(final DatagramPacket pkt) {
@@ -173,38 +211,44 @@ public class KadServer implements Communicator {
 
 			@Override
 			public void run() {
-				ByteArrayInputStream bin = null;
-				KadMessage msg = null;
 				try {
-					bin = new ByteArrayInputStream(pkt.getData(), pkt.getOffset(), pkt.getLength());
-					msg = KadServer.this.serializer.read(bin);
-
-					// System.out.println("KadServer: handleIncomingPacket: " +
-					// msg + " from: " + msg.getSrc().getKey());
-
-					// fix incoming src address
-					msg.getSrc().setInetAddress(pkt.getAddress());
-				} catch (final Exception e) {
-					e.printStackTrace();
-					return;
-				} finally {
+					ByteArrayInputStream bin = null;
+					KadMessage msg = null;
 					try {
-						bin.close();
+						bin = new ByteArrayInputStream(pkt.getData(), pkt.getOffset(), pkt.getLength());
+						msg = KadServer.this.serializer.read(bin);
+
+						// System.out.println("KadServer: handleIncomingPacket: " +
+						// msg + " from: " + msg.getSrc().getKey());
+
+						// fix incoming src address
+						msg.getSrc().setInetAddress(pkt.getAddress());
+						log.info("KadServer: handleIncomingPacket: {}, from: {}", msg, msg.getSrc().getKey());
 					} catch (final Exception e) {
+						log.error("");
+						return;
+					} finally {
+						try {
+							bin.close();
+						} catch (final Exception e) {
+						}
+						KadServer.this.pkts.offer(pkt);
 					}
-					KadServer.this.pkts.offer(pkt);
+
+					// call all the expecters
+					final List<MessageDispatcher<?>> shouldHandle = extractShouldHandle(msg);
+
+					for (final MessageDispatcher<?> m : shouldHandle) {
+						try {
+							m.handle(msg);
+						} catch (final Exception e) {
+							// handle fail should not interrupt other handlers
+							log.info("KadServer: handle error",e);
+						}
+					}
+				} catch (Exception e) {
+					log.info("KadServer: handleIncomingPacket error",e);
 				}
-
-				// call all the expecters
-				final List<MessageDispatcher<?>> shouldHandle = extractShouldHandle(msg);
-
-				for (final MessageDispatcher<?> m : shouldHandle)
-					try {
-						m.handle(msg);
-					} catch (final Exception e) {
-						// handle fail should not interrupt other handlers
-						e.printStackTrace();
-					}
 			}
 		});
 	}
@@ -220,16 +264,18 @@ public class KadServer implements Communicator {
 			DatagramPacket pkt = null;
 			try {
 				pkt = this.pkts.poll();
-				if (pkt == null)
+				if (pkt == null) {
 					pkt = new DatagramPacket(new byte[1024 * 64], 1024 * 64);
+				}
 
 				this.sockProvider.get().receive(pkt);
 				handleIncomingPacket(pkt);
 
 			} catch (final Exception e) {
 				// insert the taken pkt back
-				if (pkt != null)
+				if (pkt != null) {
 					this.pkts.offer(pkt);
+				}
 
 				e.printStackTrace();
 			}

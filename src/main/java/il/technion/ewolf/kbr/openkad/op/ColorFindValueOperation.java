@@ -148,7 +148,10 @@ public class ColorFindValueOperation extends FindValueOperation implements Compl
 	private boolean hasMoreToQuery() {
 		return !querying.isEmpty() || !alreadyQueried.containsAll(knownClosestNodes);
 	}
-	
+
+	/**
+	 * @param to
+	 */
 	private void sendFindNode(Node to) {
 		FindNodeRequest findNodeRequest = findNodeRequestProvider.get()
 			.setSearchCache(true)

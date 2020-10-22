@@ -4,12 +4,14 @@ import il.technion.ewolf.kbr.Node;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.ToString;
 
 /**
  * A ping request as defined in the kademlia protocol 
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public class PingRequest extends KadRequest {
 
 	private static final long serialVersionUID = 4646089493549742900L;

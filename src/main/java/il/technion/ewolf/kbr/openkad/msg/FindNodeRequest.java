@@ -5,6 +5,7 @@ import il.technion.ewolf.kbr.Node;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.ToString;
 
 /**
  * A findNode request as defined in the kademlia protocol
@@ -12,6 +13,7 @@ import com.google.inject.name.Named;
  * @author eyal.kibbar@gmail.com
  *
  */
+@ToString
 public class FindNodeRequest extends KadRequest {
 
 	private static final long serialVersionUID = -7084922793331210968L;
